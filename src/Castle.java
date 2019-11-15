@@ -8,11 +8,14 @@ public class Castle extends Sprite {
 	public static final double CASTLE_WIDTH = 80;
 	public static final double CASTLE_HEIGHT = 80;
 	public static final Color CASTLE_COLOR = Color.CORNFLOWERBLUE;
+
+	public static final RectangleDisplay rd = new RectangleDisplay(80, 80).addFill(Color.ALICEBLUE);
 	
 	private CastleGate gate;
 
 	public Castle(Pane layer, double x, double y) {
 		super(layer, x, y, CASTLE_WIDTH, CASTLE_HEIGHT, CASTLE_COLOR);
+		
 		
     	rectangleView.setOnMousePressed(new EventHandler<MouseEvent>() {
     	    public void handle(MouseEvent me) {
