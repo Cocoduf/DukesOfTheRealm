@@ -7,54 +7,57 @@ public class Castle extends Sprite {
 
 	public static final double CASTLE_WIDTH = 80;
 	public static final double CASTLE_HEIGHT = 80;
-	public static final Color CASTLE_COLOR = Color.CORNFLOWERBLUE;
 
-	public static final RectangleDisplay rd = new RectangleDisplay(80, 80).addFill(Color.ALICEBLUE);
+	public static final SpriteDisplay display = new SpriteDisplay().addFill(Color.LIGHTGREY);
 	
-	private CastleGate gate;
+	private Player owner = null;
 
 	public Castle(Pane layer, double x, double y) {
-		super(layer, x, y, CASTLE_WIDTH, CASTLE_HEIGHT, CASTLE_COLOR);
+		super(layer, x, y, CASTLE_WIDTH, CASTLE_HEIGHT, display);
 		
 		
     	rectangleView.setOnMousePressed(new EventHandler<MouseEvent>() {
     	    public void handle(MouseEvent me) {
     	        System.out.println("Castle clicked");
+    	        Castle.this.removeFromLayer();
     	    }
     	});
 		
-    	createGate(layer);
+    	this.createGate(layer);
 	}
 	
 	private void createGate(Pane layer) {
 		
 		double gateX, gateY, gateWidth, gateHeight;
 		
-		double a = Math.floor(Math.random() * 4);
+		double direction = Math.floor(Math.random() * 4);
 		
-		if (a == 0) { // north
-			gateX = x+10;
-			gateY = y;
-			gateWidth = width-20;
-			gateHeight = 4;
-		} else if (a == 1) { // east
+		double thickness = 6;
+		double offset = 10;
+		
+		if (direction == 0) { // north
+			gateX = x+offset;
+			gateY = y-thickness;
+			gateWidth = width-2*offset;
+			gateHeight = thickness;
+		} else if (direction == 1) { // east
 			gateX = x+width;
-			gateY = y+10;
-			gateWidth = 4;
-			gateHeight = height-20;
-		} else if (a == 2) { // south
-			gateX = x+10;
+			gateY = y+offset;
+			gateWidth = thickness;
+			gateHeight = height-2*offset;
+		} else if (direction == 2) { // south
+			gateX = x+offset;
 			gateY = y+height;
-			gateWidth = width-20;
-			gateHeight = 4;
+			gateWidth = width-2*offset;
+			gateHeight = thickness;
 		} else { // west
-			gateX = x;
-			gateY = y+10;
-			gateWidth = 4;
-			gateHeight = height-20;
+			gateX = x-thickness;
+			gateY = y+offset;
+			gateWidth = thickness;
+			gateHeight = height-2*offset;
 		}
 
-		gate = new CastleGate(layer, gateX, gateY, gateWidth, gateHeight);
+		this.addChildSprite(new CastleGate(layer, gateX, gateY, gateWidth, gateHeight));
 	}
 
 }
