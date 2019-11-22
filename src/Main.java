@@ -19,6 +19,7 @@ public class Main extends Application {
 	Group root;
 	
 	private ArrayList<Castle> castles = new ArrayList<>();
+	private ArrayList<Ost> osts = new ArrayList<>();
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -40,10 +41,39 @@ public class Main extends Application {
 
 			@Override
 			public void handle(long now) {
+					
+				
+				for (Castle castle : Main.this.castles) {
+					castle.update();
+					
+					// Pour le moment, on veut que les chateau génèrent automatiquement un Ost contenant un Pikeman quand ils ont assez de florins
+					if (castle.getTreasury() > SoldierType.PIKEMAN.getCost()) {
+						castle.pay(SoldierType.PIKEMAN.getCost());
+						Ost ost = new Ost(playfieldLayer, castle.x, castle.y);
+						ost.addSoldier(SoldierType.PIKEMAN);
+						
+						/*TODO: sélectionner arbitrairement un autre chateau pour cible,
+						 * calculer la direction à prendre pour aller à cet autre chateau,
+						 * et attribuer cette direction à l'Ost comme ci-dessous.
+						 * */
+						ost.setDx(2);
+						ost.setDy(2);
+						
+						Main.this.osts.add(ost);
+					}
+				}
+				
+				for (Ost ost : Main.this.osts) {
+					ost.move();
+				}
+				
+				StatusBar.getInstance().update();
 				
 			}
 		
 		};
+		
+		gameLoop.start();
 		
 	}
 	
@@ -68,7 +98,7 @@ public class Main extends Application {
 				location = randomLocationOnScreen(Castle.CASTLE_WIDTH, Castle.CASTLE_WIDTH*2, Castle.CASTLE_HEIGHT, Castle.CASTLE_HEIGHT*2);
 				castle.moveTo(location[0], location[1]);
 				for (Castle c : castles) {
-					if (c.overlap(castle)) {
+					if (castle.overlap(c)) {
 						free = false;
 					}
 				}

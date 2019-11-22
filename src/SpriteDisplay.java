@@ -14,12 +14,12 @@ public final class SpriteDisplay {
 	
 	public SpriteDisplay() {}
 	
-	public SpriteDisplay addFill(Color fill) {
+	public SpriteDisplay setFill(Color fill) {
 		this.fillColor = fill;
 		return this;
 	}
 	
-	public SpriteDisplay addStroke(Color stroke, double width) {
+	public SpriteDisplay setStroke(Color stroke, double width) {
 		this.strokeColor = stroke;
 		this.strokeWidth = width;
 		return this;

@@ -8,12 +8,15 @@ import javafx.scene.shape.Rectangle;
 
 public abstract class Sprite {
 	
-	private Pane layer;
+	protected Pane layer;
 	
 	protected Rectangle rectangleView;
 
 	protected double x;
 	protected double y;
+	
+	protected double dx;
+	protected double dy;
 	
     protected double width;
     protected double height;
@@ -25,6 +28,8 @@ public abstract class Sprite {
 		this.layer = layer;
     	this.x = x;
     	this.y = y;
+    	this.dx = 0;
+    	this.dy = 0;
     	this.width = width;
     	this.height = height;
     	
@@ -56,6 +61,21 @@ public abstract class Sprite {
     	this.rectangleView.setStrokeWidth(display.getStrokeWidth());
     }
     
+    // Movement on the X axis
+    public void setDx(double dx) {
+    	this.dx = dx;
+    }
+    
+ // Movement on the Y axis
+    public void setDy(double dy) {
+    	this.dy = dy;
+    }
+    
+    /**
+     * Sets the coordinates of the Sprite to (x, y) and relatively updates the coordinates of its children.
+     * @param x
+     * @param y
+     */
     public void moveTo(double x, double y) {
     	for (Sprite child : this.children) {
     		child.moveTo(x + (child.x - this.x), y + (child.y - this.y));
@@ -67,6 +87,24 @@ public abstract class Sprite {
     	this.rectangleView.setY(y);
     }
     
+    public void move() {
+    	this.moveTo(this.x+this.dx, this.y+this.dy);
+    }
+    
+    /**
+     * Checks if two Sprite are colliding. The does not take into account their children.
+     * @param s
+     * @return true if collision.
+     */
+    public boolean collision(Sprite s) {
+    	return !(this.x + this.width < s.x || s.x + s.width < this.x || this.y + this.height < s.y || s.y + s.height < this.y);
+    }
+    
+    /**
+     * Checks if two Sprite are overlapping. This takes into account their children by calculating the boundaries of the rectangular region that contains each Sprite and its children.
+     * @param s
+     * @return true if overlap.
+     */
     public boolean overlap(Sprite s) {
     	double left1=this.x, right1=this.x + this.width, top1=this.y, bottom1=this.y + this.height;
     	for (Sprite child : this.children) {
@@ -84,7 +122,6 @@ public abstract class Sprite {
     		if (child.y+child.height > bottom2) bottom2 = child.y+child.height;
         }
     	
-    	//return !(this.x + this.width < s.x || s.x + s.width < this.x || this.y + this.height < s.y || s.y + s.height < this.y);
     	return !(right1 < left2 || right2 < left1 || bottom1 < top2 || bottom2 < top1);
     }
 	
