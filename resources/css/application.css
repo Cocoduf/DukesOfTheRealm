@@ -1,0 +1,9 @@
+.statusBar {
+    -fx-background-color: #efefef;
+    -fx-padding: 10px 50px;
+    -fx-border-color: black;
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 2px 0;  
+	-fx-font-weight: bold;
+	-fx-font-size: 20px;
+}

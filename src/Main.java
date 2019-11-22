@@ -4,7 +4,11 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -19,7 +23,9 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		root = new Group();
-		scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
+		scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT + Settings.STATUS_BAR_HEIGHT);
+		
+		scene.getStylesheets().add(getClass().getResource("/css/application.css").toExternalForm());
 		
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
@@ -44,13 +50,17 @@ public class Main extends Application {
 	private double[] randomLocationOnScreen(double offsetLeft, double offsetRight, double offsetTop, double offsetBottom) {
 		double[] location = new double[2];
 		location[0] = Math.floor(Math.random() * (Settings.SCENE_WIDTH+1 - offsetRight)) + offsetLeft; // x
-		location[1] = Math.floor(Math.random() * (Settings.SCENE_HEIGHT+1 - offsetBottom)) + offsetTop; // y
+		location[1] = Math.floor(Math.random() * (Settings.SCENE_HEIGHT+1 - offsetBottom)) + offsetTop+Settings.STATUS_BAR_HEIGHT; // y
 		return location;
+	}
+	
+	public void createStatusBar() {
+		root.getChildren().addAll(StatusBar.getInstance().getUIStatusBar());
 	}
 	
 	private void createCastles() {
 		for (int i = 0; i < Settings.PLAYER_COUNT; i++) {
-			Castle castle = new Castle(playfieldLayer, 0, 0);
+			Castle castle = new Castle(playfieldLayer, 0, 0, "PLAYER "+i);
 			double[] location;
 			boolean free;
 			do {
@@ -70,6 +80,7 @@ public class Main extends Application {
 	}
 	
 	private void loadGame() {
+		createStatusBar();
 		createCastles();
 	}
 

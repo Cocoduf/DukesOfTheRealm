@@ -68,9 +68,24 @@ public abstract class Sprite {
     }
     
     public boolean overlap(Sprite s) {
-    	// TODO: loop on children and parent to find the boundaries of each group,
-    	// then consider them as two rectangles from which you check the overlap:
-    	return !(this.x + this.width < s.x || s.x + s.width < this.x || this.y + this.height < s.y || s.y + s.height < this.y);
+    	double left1=this.x, right1=this.x + this.width, top1=this.y, bottom1=this.y + this.height;
+    	for (Sprite child : this.children) {
+    		if (child.x < left1) left1 = child.x;
+    		if (child.x+child.width > right1) right1 = child.x+child.width;
+    		if (child.y < top1) top1 = child.y;
+    		if (child.y+child.height > bottom1) bottom1 = child.y+child.height;
+        }
+
+    	double left2=s.x, right2=s.x + s.width, top2=s.y, bottom2=s.y + s.height;
+    	for (Sprite child : s.children) {
+    		if (child.x < left2) left2 = child.x;
+    		if (child.x+child.width > right2) right2 = child.x+child.width;
+    		if (child.y < top2) top2 = child.y;
+    		if (child.y+child.height > bottom2) bottom2 = child.y+child.height;
+        }
+    	
+    	//return !(this.x + this.width < s.x || s.x + s.width < this.x || this.y + this.height < s.y || s.y + s.height < this.y);
+    	return !(right1 < left2 || right2 < left1 || bottom1 < top2 || bottom2 < top1);
     }
 	
 }

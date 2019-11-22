@@ -10,20 +10,40 @@ public class Castle extends Sprite {
 
 	public static final SpriteDisplay display = new SpriteDisplay().addFill(Color.LIGHTGREY);
 	
-	private Player owner = null;
+	private CastleGate gate;
+	private String owner = "undefined";
+	private double level = 1;
 
-	public Castle(Pane layer, double x, double y) {
+	public Castle(Pane layer, double x, double y, String owner) {
 		super(layer, x, y, CASTLE_WIDTH, CASTLE_HEIGHT, display);
 		
+		this.owner = owner;
 		
     	rectangleView.setOnMousePressed(new EventHandler<MouseEvent>() {
     	    public void handle(MouseEvent me) {
     	        System.out.println("Castle clicked");
-    	        Castle.this.removeFromLayer();
+    	        //Castle.this.removeFromLayer();
+    	        StatusBar.getInstance().update(Castle.this);
     	    }
     	});
 		
     	this.createGate(layer);
+	}
+	
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public double getLevel() {
+		return level;
+	}
+
+	public void setLevel(double level) {
+		this.level = level;
 	}
 	
 	private void createGate(Pane layer) {
@@ -57,7 +77,8 @@ public class Castle extends Sprite {
 			gateHeight = height-2*offset;
 		}
 
-		this.addChildSprite(new CastleGate(layer, gateX, gateY, gateWidth, gateHeight));
+		this.gate = new CastleGate(layer, gateX, gateY, gateWidth, gateHeight);
+		this.addChildSprite(this.gate);
 	}
 
 }
