@@ -11,12 +11,14 @@ public abstract class Sprite {
 	protected Pane layer;
 	
 	protected Rectangle rectangleView;
+	protected SpriteDisplay currentDisplay;
 
 	protected double x;
 	protected double y;
 	
 	protected double dx;
 	protected double dy;
+	protected double speed;
 	
     protected double width;
     protected double height;
@@ -30,6 +32,7 @@ public abstract class Sprite {
     	this.y = y;
     	this.dx = 0;
     	this.dy = 0;
+    	this.speed = 1;
     	this.width = width;
     	this.height = height;
     	
@@ -59,6 +62,15 @@ public abstract class Sprite {
     	this.rectangleView.setFill(display.getFillColor());
     	this.rectangleView.setStroke(display.getStrokeColor()); 
     	this.rectangleView.setStrokeWidth(display.getStrokeWidth());
+    	this.currentDisplay = display;
+    }
+    
+    public double getX() {
+    	return this.x;
+    }
+    
+    public double getY() {
+    	return this.y;
     }
     
     // Movement on the X axis
@@ -66,9 +78,13 @@ public abstract class Sprite {
     	this.dx = dx;
     }
     
- // Movement on the Y axis
+    // Movement on the Y axis
     public void setDy(double dy) {
     	this.dy = dy;
+    }
+    
+    public void setSpeed(double speed) {
+    	this.speed = speed;
     }
     
     /**
@@ -88,7 +104,7 @@ public abstract class Sprite {
     }
     
     public void move() {
-    	this.moveTo(this.x+this.dx, this.y+this.dy);
+    	this.moveTo(this.x+(this.dx*this.speed), this.y+(this.dy*this.speed));
     }
     
     /**

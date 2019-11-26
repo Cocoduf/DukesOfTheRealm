@@ -8,7 +8,8 @@ public class Castle extends Sprite {
 	public static final double CASTLE_WIDTH = 80;
 	public static final double CASTLE_HEIGHT = 80;
 
-	public static final SpriteDisplay display = new SpriteDisplay().setFill(Color.LIGHTGREY);
+	public static final SpriteDisplay neutral_display = new SpriteDisplay().setFill(Color.LIGHTGREY);
+	public static final SpriteDisplay player_display = new SpriteDisplay().setFill(Color.GOLD);
 	
 	private CastleGate gate;
 	
@@ -17,7 +18,7 @@ public class Castle extends Sprite {
 	private int treasury = 0;
 
 	public Castle(Pane layer, double x, double y, String owner) {
-		super(layer, x, y, CASTLE_WIDTH, CASTLE_HEIGHT, display);
+		super(layer, x, y, CASTLE_WIDTH, CASTLE_HEIGHT, owner==Settings.PLAYER_NAME?player_display:neutral_display);
 		
 		this.owner = owner;
 		

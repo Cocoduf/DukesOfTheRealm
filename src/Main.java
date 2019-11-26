@@ -47,17 +47,17 @@ public class Main extends Application {
 					castle.update();
 					
 					// Pour le moment, on veut que les chateau génèrent automatiquement un Ost contenant un Pikeman quand ils ont assez de florins
-					if (castle.getTreasury() > SoldierType.PIKEMAN.getCost()) {
+					if (castle.getTreasury() > SoldierType.PIKEMAN.getCost() && castle.getOwner() != Settings.PLAYER_NAME) {
 						castle.pay(SoldierType.PIKEMAN.getCost());
 						Ost ost = new Ost(playfieldLayer, castle.x, castle.y);
 						ost.addSoldier(SoldierType.PIKEMAN);
 						
-						/*TODO: sélectionner arbitrairement un autre chateau pour cible,
-						 * calculer la direction à prendre pour aller à cet autre chateau,
-						 * et attribuer cette direction à l'Ost comme ci-dessous.
-						 * */
-						ost.setDx(2);
-						ost.setDy(2);
+						Castle target = Main.this.castles.get(0);
+						
+						double[] direction = Main.getCosineDirection(castle.getX(), castle.getY(), target.getX(), target.getY());
+						
+						ost.setDx(direction[0]);
+						ost.setDy(direction[1]);
 						
 						Main.this.osts.add(ost);
 					}
@@ -77,12 +77,19 @@ public class Main extends Application {
 		
 	}
 	
-	private double[] randomLocationOnScreen(double offsetLeft, double offsetRight, double offsetTop, double offsetBottom) {
+	public static double[] randomLocationOnScreen(double offsetLeft, double offsetRight, double offsetTop, double offsetBottom) {
 		double[] location = new double[2];
 		location[0] = Math.floor(Math.random() * (Settings.SCENE_WIDTH+1 - offsetRight)) + offsetLeft; // x
 		location[1] = Math.floor(Math.random() * (Settings.SCENE_HEIGHT+1 - offsetBottom)) + offsetTop+Settings.STATUS_BAR_HEIGHT; // y
 		return location;
 	}
+	
+	public static double[] getCosineDirection(double x1, double y1, double x2, double y2) {
+    	double q = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+		double dx = (x2-x1) / q;
+		double dy = (y2-y1) / q;
+		return new double[] {dx, dy};
+    }
 	
 	public void createStatusBar() {
 		root.getChildren().addAll(StatusBar.getInstance().getUIStatusBar());
@@ -90,7 +97,7 @@ public class Main extends Application {
 	
 	private void createCastles() {
 		for (int i = 0; i < Settings.PLAYER_COUNT; i++) {
-			Castle castle = new Castle(playfieldLayer, 0, 0, "PLAYER "+i);
+			Castle castle = new Castle(playfieldLayer, 0, 0, i==0?Settings.PLAYER_NAME:"ENEMY "+i);
 			double[] location;
 			boolean free;
 			do {
