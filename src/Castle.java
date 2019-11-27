@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -8,7 +10,7 @@ public class Castle extends Sprite {
 	public static final double CASTLE_WIDTH = 80;
 	public static final double CASTLE_HEIGHT = 80;
 
-	public static final SpriteDisplay neutral_display = new SpriteDisplay().setFill(Color.LIGHTGREY);
+	public static final SpriteDisplay neutral_display = new SpriteDisplay().setFill(Color.LIGHTGRAY);
 	public static final SpriteDisplay player_display = new SpriteDisplay().setFill(Color.GOLD);
 	
 	private CastleGate gate;
@@ -16,6 +18,7 @@ public class Castle extends Sprite {
 	private String owner = "undefined";
 	private int level = 1;
 	private int treasury = 0;
+	private HashMap<SoldierType, Integer> army = new HashMap<>();
 
 	public Castle(Pane layer, double x, double y, String owner) {
 		super(layer, x, y, CASTLE_WIDTH, CASTLE_HEIGHT, owner==Settings.PLAYER_NAME?player_display:neutral_display);
@@ -59,6 +62,17 @@ public class Castle extends Sprite {
 		this.treasury -= amount;
 	}
 	
+	// Return true if the transaction was successful
+	public boolean buySoldier(SoldierType type) {
+		if (treasury >= type.getCost()) {
+			pay(type.getCost());
+			army.put(type, (army.containsKey(type) ? army.get(type) : 0) + 1); // increment by 1 or put 1 if null
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	private void createGate(Pane layer) {
 		
 		double gateX, gateY, gateWidth, gateHeight;
@@ -92,6 +106,18 @@ public class Castle extends Sprite {
 
 		this.gate = new CastleGate(layer, gateX, gateY, gateWidth, gateHeight);
 		this.addChildSprite(this.gate);
+	}
+	
+	public CastleGate getCastleGate() {
+		return gate;
+	}
+	
+	public void receiveOst(Ost ost) {
+		if (ost.getSource().owner == owner) {
+			//friendly encounter
+		} else {
+			//resolve attack
+		}
 	}
 	
 	public void update() {

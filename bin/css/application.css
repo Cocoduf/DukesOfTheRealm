@@ -7,3 +7,7 @@
 	-fx-font-weight: bold;
 	-fx-font-size: 20px;
 }
+
+.soldiersGrid {
+	-fx-padding: 0 0 0 100px;
+}

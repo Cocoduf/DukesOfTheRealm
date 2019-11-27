@@ -1,5 +1,6 @@
 import javafx.geometry.Pos;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -13,6 +14,7 @@ public class StatusBar {
 	private HBox UIStatusBar = new HBox();
 	private VBox UILabelsBox = new VBox();
 	private VBox UIValuesBox = new VBox();
+	private GridPane UISoldiersGrid = new GridPane();
 	private Text UILabelCastleOwner = new Text();
 	private Text UIValueCastleOwner = new Text();
 	private Text UILabelCastleLevel = new Text();
@@ -21,16 +23,25 @@ public class StatusBar {
 	private Text UIValueCastleTreasury = new Text();
 	
 	private StatusBar() {
-		
-		//TODO: créer une VBox qui contient un Text qui dit "Piquier" et un bouton qui dit "Produire (X florins)" avec X etant le coût (SoldierType.PIKEMAN.getCost())
-		
 		UILabelCastleOwner.setText("Propriétaire : ");
 		UILabelCastleLevel.setText("Niveau : ");
 		UILabelCastleTreasury.setText("Florins : ");
 		UILabelsBox.setAlignment(Pos.TOP_RIGHT);
 		UILabelsBox.getChildren().addAll(UILabelCastleOwner, UILabelCastleLevel, UILabelCastleTreasury);
 		UIValuesBox.getChildren().addAll(UIValueCastleOwner, UIValueCastleLevel, UIValueCastleTreasury);
-		UIStatusBar.getChildren().addAll(UILabelsBox, UIValuesBox);
+		
+		//TODO: mettre dans la GridPane UISoldiersGrid:
+		//une ligne Label pour chaque type de soldat,
+		//une ligne Nombre pour le nombre de soldat dans le chateau,
+		//et une ligne de boutons qui disent "Produire (X florins)" avec X etant le coût du soldat.
+		//Mettre en forme (espacer les cellules entre elles, peut-être une police plus petite) et ajouter un titre à la grille ("Armée", "Troupes" ou "Soldats").
+		UISoldiersGrid.add(new Text("text00"), 0, 0);
+		UISoldiersGrid.add(new Text("text01"), 0, 1);
+		UISoldiersGrid.add(new Text("text10"), 1, 0);
+		UISoldiersGrid.add(new Text("text11"), 1, 1);
+
+		UISoldiersGrid.getStyleClass().add("soldiersGrid");
+		UIStatusBar.getChildren().addAll(UILabelsBox, UIValuesBox, UISoldiersGrid);
 		UIStatusBar.getStyleClass().add("statusBar");
 		UIStatusBar.relocate(0, 0);
 		UIStatusBar.setPrefSize(Settings.SCENE_WIDTH, Settings.STATUS_BAR_HEIGHT);

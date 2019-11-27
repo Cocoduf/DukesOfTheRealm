@@ -54,7 +54,7 @@ public abstract class Sprite {
         this.layer.getChildren().remove(this.rectangleView);
         
         for (Sprite child : this.children) {
-        	this.layer.getChildren().remove(child.rectangleView);
+        	child.removeFromLayer();
         }
     }
     
@@ -65,6 +65,21 @@ public abstract class Sprite {
     	this.currentDisplay = display;
     }
     
+    // Remove any priority the Sprite would have to be displayed on top of an other Sprite
+    public void toBack() {
+    	for (Sprite child : this.children) {
+        	child.toBack();
+        }
+    	this.rectangleView.toBack();
+    }
+
+    public void toFront() {
+    	for (Sprite child : this.children) {
+        	child.toFront();
+        }
+    	this.rectangleView.toFront();
+    }
+    
     public double getX() {
     	return this.x;
     }
@@ -73,7 +88,23 @@ public abstract class Sprite {
     	return this.y;
     }
     
-    // Movement on the X axis
+    private double getWidth() {
+		return this.width;
+	}
+    
+    private double getHeight() {
+		return this.height;
+	}
+    
+    public double getCenterX() {
+    	return getX()+getWidth()/2;
+    }
+    
+    public double getCenterY() {
+    	return getY()+getHeight()/2;
+    }
+
+	// Movement on the X axis
     public void setDx(double dx) {
     	this.dx = dx;
     }
@@ -86,6 +117,12 @@ public abstract class Sprite {
     public void setSpeed(double speed) {
     	this.speed = speed;
     }
+    
+	public void updateDirection(double destX, double destY) {
+		double[] direction = Main.getCosineDirection(this.getX(), this.getY(), destX, destY);
+		this.setDx(direction[0]);
+		this.setDy(direction[1]);
+	}
     
     /**
      * Sets the coordinates of the Sprite to (x, y) and relatively updates the coordinates of its children.

@@ -4,10 +4,13 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -17,6 +20,10 @@ public class Main extends Application {
 	private Scene scene;
 	private AnimationTimer gameLoop;
 	Group root;
+	
+	private boolean paused = false;
+	private Text gameStateText = new Text();
+	
 	
 	private ArrayList<Castle> castles = new ArrayList<>();
 	private ArrayList<Ost> osts = new ArrayList<>();
@@ -41,30 +48,35 @@ public class Main extends Application {
 
 			@Override
 			public void handle(long now) {
-					
 				
-				for (Castle castle : Main.this.castles) {
-					castle.update();
-					
-					// Pour le moment, on veut que les chateau génèrent automatiquement un Ost contenant un Pikeman quand ils ont assez de florins
-					if (castle.getTreasury() > SoldierType.PIKEMAN.getCost() && castle.getOwner() != Settings.PLAYER_NAME) {
-						castle.pay(SoldierType.PIKEMAN.getCost());
-						Ost ost = new Ost(playfieldLayer, castle.x, castle.y);
-						ost.addSoldier(SoldierType.PIKEMAN);
+				if (!Main.this.isPaused()) {
+				
+					for (Castle castle : Main.this.castles) {
+						castle.update();
 						
-						Castle target = Main.this.castles.get(0);
-						
-						double[] direction = Main.getCosineDirection(castle.getX(), castle.getY(), target.getX(), target.getY());
-						
-						ost.setDx(direction[0]);
-						ost.setDy(direction[1]);
-						
-						Main.this.osts.add(ost);
+						// Pour le moment, on veut que les chateau génèrent automatiquement un Ost contenant un Pikeman quand ils ont assez de florins
+						if (castle.getOwner() != Settings.PLAYER_NAME) {
+							if (castle.buySoldier(SoldierType.PIKEMAN)) {
+							
+								Castle target = Main.this.castles.get(0);
+								Ost ost = new Ost(playfieldLayer, castle, target);
+								ost.addSoldier(SoldierType.PIKEMAN);
+								
+								Main.this.osts.add(ost);
+								
+							}
+						}
 					}
-				}
 				
-				for (Ost ost : Main.this.osts) {
-					ost.move();
+					for (Ost ost : Main.this.osts) {
+						ost.update();
+						
+						if (ost.hasResolved()) {
+							ost.removeFromLayer();
+						}
+					}
+					Main.this.osts.removeIf(ost -> ost.hasResolved());
+				
 				}
 				
 				StatusBar.getInstance().update();
@@ -91,8 +103,8 @@ public class Main extends Application {
 		return new double[] {dx, dy};
     }
 	
-	public void createStatusBar() {
-		root.getChildren().addAll(StatusBar.getInstance().getUIStatusBar());
+	private void createStatusBar() {
+		root.getChildren().add(StatusBar.getInstance().getUIStatusBar());
 	}
 	
 	private void createCastles() {
@@ -116,7 +128,33 @@ public class Main extends Application {
 		}
 	}
 	
+	private void changeGameStateText(String text) {
+		gameStateText.setText(text);
+		double textwidth = gameStateText.getLayoutBounds().getWidth();
+		gameStateText.setX((Settings.SCENE_WIDTH-textwidth)/2);
+		gameStateText.setY(Settings.SCENE_HEIGHT/2);
+	}
+	
+	private void pause() {
+		this.paused = !this.paused;
+		changeGameStateText(paused ? "Jeu en pause" : "");
+	}
+	
+	public boolean isPaused() {
+		return this.paused;
+	}
+	
 	private void loadGame() {
+		gameStateText.setFont(Font.font("Arial", 60));
+		root.getChildren().add(gameStateText);
+		changeGameStateText("");
+		
+		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			if (event.getCode() == KeyCode.P) {
+				pause();
+			}
+		});
+		
 		createStatusBar();
 		createCastles();
 	}

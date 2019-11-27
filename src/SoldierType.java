@@ -6,8 +6,9 @@ import javafx.scene.paint.Color;
  */
 public enum SoldierType {
 
-	PIKEMAN(100, 5, 2, 1, 1, 30, 30, new SpriteDisplay().setFill(Color.BLANCHEDALMOND).setStroke(Color.BLUEVIOLET, 1));
+	PIKEMAN("Piquier", 100, 5, 2, 1, 1, 30, 30, new SpriteDisplay().setFill(Color.CRIMSON));
 	
+	private String name;
 	private int cost;
 	private int productionTime;
 	private int speed;
@@ -17,7 +18,8 @@ public enum SoldierType {
 	private double height;
 	private SpriteDisplay display;
 	
-	SoldierType(int cost, int productionTime, int speed, int health, int damage, double width, double height, SpriteDisplay display) {
+	SoldierType(String name, int cost, int productionTime, int speed, int health, int damage, double width, double height, SpriteDisplay display) {
+		this.name = name;
 		this.width = width;
 		this.height = height;
 		this.cost = cost;
@@ -26,6 +28,10 @@ public enum SoldierType {
 		this.health = health;
 		this.damage = damage;
 		this.display = display;
+	}
+	
+	public String getName() {
+		return name;
 	}
 
 	public int getCost() {
