@@ -20,7 +20,7 @@ public class Castle extends Sprite {
 	private String owner = "undefined";
 	private int level = 1;
 	private int treasury = 0;
-	private int production = 0;
+	private int soldierProduction = 0;
 	private HashMap<SoldierType, Integer> army = new HashMap<>();
 	private Queue<SoldierType> productionLine = new LinkedList<SoldierType>();
 
@@ -93,6 +93,14 @@ public class Castle extends Sprite {
 		return army.containsKey(type) ? army.get(type) : 0;
 	}
 	
+	public Queue<SoldierType> getProductionLine() {
+		return productionLine;
+	}
+	
+	public int getSoldierProduction() {
+		return soldierProduction;
+	}
+	
 	// Return true if the transaction was successful
 	public boolean buySoldier(SoldierType type) {
 		if (treasury >= type.getCost()) {
@@ -102,10 +110,6 @@ public class Castle extends Sprite {
 		} else {
 			return false;
 		}
-	}
-	
-	public Queue<SoldierType> getProductionLine() {
-		return productionLine;
 	}
 	
 	private void createGate(Pane layer) {
@@ -160,11 +164,11 @@ public class Castle extends Sprite {
 		
 		// advance the production of the next soldier and create it if it's ready
 		if (!productionLine.isEmpty()) {
-			production++;
-			if (production == productionLine.peek().getProductionTime()) {
+			soldierProduction++;
+			if (soldierProduction == productionLine.peek().getProductionTime()) {
 				SoldierType type = productionLine.poll();
 				army.put(type, getSoldierAmount(type) + 1); // increment by 1 or put 1 if null
-				production = 0;
+				soldierProduction = 0;
 			}
 		}
 	}

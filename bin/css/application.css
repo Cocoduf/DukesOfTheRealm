@@ -5,10 +5,10 @@
     -fx-border-style: solid;
     -fx-border-width: 0 0 2px 0;  
 	-fx-font-weight: bold;
-	-fx-font-size: 20px;
+	-fx-font-size: 18px;
 }
 
 .soldiersGrid {
 	-fx-padding: 0 0 0 100px;
-	-fx-font-size: 16px;
+	-fx-font-size: 14px;
 }

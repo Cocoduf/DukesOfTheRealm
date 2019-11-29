@@ -1,9 +1,12 @@
+import java.util.Queue;
+
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -16,10 +19,14 @@ import javafx.scene.text.Text;
  */
 public class StatusBar {
 	private Castle selectedCastle = null;
-	private HBox UIStatusBar = new HBox();
+	
+	private VBox UIStatusBar = new VBox(); // includes UITopBox and UIProductionLine
+	private HBox UITopBox = new HBox(); // includes UILabelsBox, UIValuesBox and UISoldiersGrid
 	private VBox UILabelsBox = new VBox();
 	private VBox UIValuesBox = new VBox();
 	private GridPane UISoldiersGrid = new GridPane();
+	private HBox UIProductionLine = new HBox();
+	
 	private Text UILabelCastleOwner = new Text();
 	private Text UIValueCastleOwner = new Text();
 	private Text UILabelCastleLevel = new Text();
@@ -27,27 +34,32 @@ public class StatusBar {
 	private Text UILabelCastleTreasury = new Text();
 	private Text UIValueCastleTreasury = new Text();
 	private Text UILabelCastleUpgrade = new Text();
-	private Button UIValueCastleUpgrade = new Button();
+	private Button UIButtonCastleUpgrade = new Button();
+	
+	private Text UILabelProductionLine = new Text();
+	private ProgressBar UIProgressBarProductionLine = new ProgressBar();
 	
 	private StatusBar() {
+		
+		// castle informations
 		UILabelCastleOwner.setText("Propriétaire : ");
 		UILabelCastleLevel.setText("Niveau : ");
 		UILabelCastleTreasury.setText("Florins : ");
 		UILabelCastleUpgrade.setText("Améliorer : ");
 		UILabelCastleUpgrade.setVisible(false);
-		UIValueCastleUpgrade.setVisible(false);
-		UIValueCastleUpgrade.setOnMouseClicked(new EventHandler<MouseEvent>() {
+		UIButtonCastleUpgrade.setVisible(false);
+		UIButtonCastleUpgrade.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
 				StatusBar.this.upgradeCaslteHandler();
 			}
 		});
-		
 		UILabelsBox.setAlignment(Pos.TOP_RIGHT);
 		UILabelsBox.getChildren().addAll(UILabelCastleOwner, UILabelCastleLevel, UILabelCastleTreasury, UILabelCastleUpgrade);
-		UIValuesBox.getChildren().addAll(UIValueCastleOwner, UIValueCastleLevel, UIValueCastleTreasury, UIValueCastleUpgrade);
+		UIValuesBox.getChildren().addAll(UIValueCastleOwner, UIValueCastleLevel, UIValueCastleTreasury, UIButtonCastleUpgrade);
 		
-		//TODO: ajouter un titre à la grille ("Armée", "Troupes" ou "Soldats").
+		// soldiers management
+		//TODO: ajouter un titre au tableau des soldats
 		int i = 0;
 		for (SoldierType type : SoldierType.values()) {
 			Label soldierLabel = new Label();
@@ -73,12 +85,19 @@ public class StatusBar {
 			
 			i++;
 		}
-		
-		//TODO: afficher la productionLine du chateau courant
-
 		UISoldiersGrid.getStyleClass().add("soldiersGrid");
 		UISoldiersGrid.setHgap(10);
-		UIStatusBar.getChildren().addAll(UILabelsBox, UIValuesBox, UISoldiersGrid);
+		
+		//TODO: have the production line display the queued soldiers
+		UILabelProductionLine.setText("Production : ");
+		UILabelProductionLine.setVisible(false);
+		UIProgressBarProductionLine.setProgress(0);
+		UIProgressBarProductionLine.setVisible(false);
+		UIProductionLine.getChildren().addAll(UILabelProductionLine, UIProgressBarProductionLine);
+
+		// assemble everything
+		UITopBox.getChildren().addAll(UILabelsBox, UIValuesBox, UISoldiersGrid);
+		UIStatusBar.getChildren().addAll(UITopBox, UIProductionLine);
 		UIStatusBar.getStyleClass().add("statusBar");
 		UIStatusBar.relocate(0, 0);
 		UIStatusBar.setPrefSize(Settings.SCENE_WIDTH, Settings.STATUS_BAR_HEIGHT);
@@ -90,7 +109,7 @@ public class StatusBar {
 		return INSTANCE;
 	}
 	
-	public HBox getUIStatusBar() {
+	public VBox getUIStatusBar() {
 		return this.UIStatusBar;
 	}
 	
@@ -108,12 +127,14 @@ public class StatusBar {
 	
 	public void update() {
 		if (selectedCastle != null) {
-			this.UIValueCastleOwner.setText(selectedCastle.getOwner());
-			this.UIValueCastleLevel.setText(Integer.toString(selectedCastle.getLevel()));
-			this.UIValueCastleTreasury.setText(Integer.toString(selectedCastle.getTreasury()));
-			this.UIValueCastleUpgrade.setText(Integer.toString(selectedCastle.getUpgradeCost())+"F");
-			this.UIValueCastleUpgrade.setVisible(selectedCastle.isPlayerOwned());
-			this.UILabelCastleUpgrade.setVisible(selectedCastle.isPlayerOwned());
+			UIValueCastleOwner.setText(selectedCastle.getOwner());
+			UIValueCastleLevel.setText(Integer.toString(selectedCastle.getLevel()));
+			UIValueCastleTreasury.setText(Integer.toString(selectedCastle.getTreasury()));
+			UIButtonCastleUpgrade.setText(Integer.toString(selectedCastle.getUpgradeCost())+"F");
+			UIButtonCastleUpgrade.setVisible(selectedCastle.isPlayerOwned());
+			UILabelCastleUpgrade.setVisible(selectedCastle.isPlayerOwned());
+			UILabelProductionLine.setVisible(selectedCastle.isPlayerOwned());
+			UIProgressBarProductionLine.setVisible(selectedCastle.isPlayerOwned());
 			
 			int i = 0;
 			for (SoldierType type : SoldierType.values()) {
@@ -126,6 +147,14 @@ public class StatusBar {
 				Button soldierBuy = ((Button)getNodeFromGridPane(UISoldiersGrid, i, 2));
 				soldierBuy.setText("Produire ("+type.getCost()+"F)");
 				soldierBuy.setVisible(selectedCastle.isPlayerOwned());
+			}
+			
+			Queue<SoldierType> productionLine = selectedCastle.getProductionLine();
+			SoldierType nextSoldier = productionLine.peek();
+			if (nextSoldier != null) {
+				UIProgressBarProductionLine.setProgress((double)selectedCastle.getSoldierProduction() / (double)nextSoldier.getProductionTime());
+			} else {
+				UIProgressBarProductionLine.setProgress(0);
 			}
 		}
 	}
