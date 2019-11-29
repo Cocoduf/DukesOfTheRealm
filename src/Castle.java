@@ -1,4 +1,6 @@
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -18,7 +20,9 @@ public class Castle extends Sprite {
 	private String owner = "undefined";
 	private int level = 1;
 	private int treasury = 0;
+	private int production = 0;
 	private HashMap<SoldierType, Integer> army = new HashMap<>();
+	private Queue<SoldierType> productionLine = new LinkedList<SoldierType>();
 
 	public Castle(Pane layer, double x, double y, String owner) {
 		super(layer, x, y, CASTLE_WIDTH, CASTLE_HEIGHT, owner==Settings.PLAYER_NAME?player_display:neutral_display);
@@ -41,6 +45,10 @@ public class Castle extends Sprite {
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
+	
+	public boolean isPlayerOwned() {
+		return owner == Settings.PLAYER_NAME;
+	}
 
 	public int getLevel() {
 		return level;
@@ -48,6 +56,21 @@ public class Castle extends Sprite {
 
 	public void setLevel(int level) {
 		this.level = level;
+	}
+	
+	public int getUpgradeCost() {
+		return 1000 * level;
+	}
+	
+	// Return true if the transaction was successful
+	public boolean buyUpgrade() {
+		if (treasury >= getUpgradeCost()) {
+			pay(getUpgradeCost());
+			level++;
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public int getTreasury() {
@@ -58,19 +81,31 @@ public class Castle extends Sprite {
 		this.treasury = treasury;
 	}
 	
+	public int getIncome() {
+		return level*1;
+	}
+	
 	public void pay(int amount) {
-		this.treasury -= amount;
+		treasury -= amount;
+	}
+	
+	public int getSoldierAmount(SoldierType type) {
+		return army.containsKey(type) ? army.get(type) : 0;
 	}
 	
 	// Return true if the transaction was successful
 	public boolean buySoldier(SoldierType type) {
 		if (treasury >= type.getCost()) {
 			pay(type.getCost());
-			army.put(type, (army.containsKey(type) ? army.get(type) : 0) + 1); // increment by 1 or put 1 if null
+			productionLine.add(type);
 			return true;
 		} else {
 			return false;
 		}
+	}
+	
+	public Queue<SoldierType> getProductionLine() {
+		return productionLine;
 	}
 	
 	private void createGate(Pane layer) {
@@ -121,7 +156,17 @@ public class Castle extends Sprite {
 	}
 	
 	public void update() {
-		this.treasury += this.level*1;
+		this.treasury += getIncome();
+		
+		// advance the production of the next soldier and create it if it's ready
+		if (!productionLine.isEmpty()) {
+			production++;
+			if (production == productionLine.peek().getProductionTime()) {
+				SoldierType type = productionLine.poll();
+				army.put(type, getSoldierAmount(type) + 1); // increment by 1 or put 1 if null
+				production = 0;
+			}
+		}
 	}
 
 }

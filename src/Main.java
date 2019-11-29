@@ -55,7 +55,7 @@ public class Main extends Application {
 						castle.update();
 						
 						// Pour le moment, on veut que les chateau génèrent automatiquement un Ost contenant un Pikeman quand ils ont assez de florins
-						if (castle.getOwner() != Settings.PLAYER_NAME) {
+						if (!castle.isPlayerOwned()) {
 							if (castle.buySoldier(SoldierType.PIKEMAN)) {
 							
 								Castle target = Main.this.castles.get(0);

@@ -1,8 +1,8 @@
 import javafx.scene.paint.Color;
 
 /**
- * The SpriteDisplay class is used to define and share the parameters that determine how a Sprite subclass looks.
- * Once defined, a SpriteDisplay should not be altered.
+ * The SpriteDisplay class is used to define and share the parameters that determine how a Sprite looks.
+ * Once defined, a SpriteDisplay is not meant to be altered.
  * A Sprite can however have multiple SpriteDisplay, and switch between them when needed using the method Sprite.changeDisplay(SpriteDisplay display).
  *
  */

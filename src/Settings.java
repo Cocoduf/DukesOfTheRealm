@@ -8,6 +8,6 @@ public class Settings {
     
     public static final int PLAYER_COUNT = 4;
 
-	public static String PLAYER_NAME = "PLAYER";
+	public static final String PLAYER_NAME = "PLAYER";
 	
 }
