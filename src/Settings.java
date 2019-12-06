@@ -7,6 +7,7 @@ public class Settings {
 	public static final double STATUS_BAR_HEIGHT = 100;
     
     public static final int PLAYER_COUNT = 4;
+    public static final int MAX_PRODUCTION_LINE = 8;
 
 	public static final String PLAYER_NAME = "PLAYER";
 	

@@ -2,17 +2,21 @@ import java.util.ArrayList;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class Main extends Application {
 	
@@ -24,9 +28,11 @@ public class Main extends Application {
 	private boolean paused = false;
 	private Text gameStateText = new Text();
 	
-	
 	private ArrayList<Castle> castles = new ArrayList<>();
 	private ArrayList<Ost> osts = new ArrayList<>();
+	
+	private Castle selectedCastle = null; // Castle displayed in StatusBar
+	private Castle targetedCastle = null; // Castle targeted by selectedCastle when the player is planning an attack
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -51,32 +57,44 @@ public class Main extends Application {
 				
 				if (!Main.this.isPaused()) {
 				
+					Main.this.castles.forEach(castle -> castle.update());
+					////
 					for (Castle castle : Main.this.castles) {
-						castle.update();
-						
-						// Pour le moment, on veut que les chateau génèrent automatiquement un Ost contenant un Pikeman quand ils ont assez de florins
+						// Pour le moment, les chateaux génèrent automatiquement un Ost contenant un Pikeman quand ils ont assez de florins
 						if (!castle.isPlayerOwned()) {
 							if (castle.buySoldier(SoldierType.PIKEMAN)) {
 							
-								Castle target = Main.this.castles.get(0);
+								/*Castle target = Main.this.castles.get(0);
 								Ost ost = new Ost(playfieldLayer, castle, target);
 								ost.addSoldier(SoldierType.PIKEMAN);
 								
-								Main.this.osts.add(ost);
+								Main.this.osts.add(ost);*/
 								
 							}
 						}
 					}
-				
-					for (Ost ost : Main.this.osts) {
-						ost.update();
-						
-						if (ost.hasResolved()) {
-							ost.removeFromLayer();
-						}
-					}
+					////
+					Main.this.osts.forEach(ost -> ost.update());
 					Main.this.osts.removeIf(ost -> ost.hasResolved());
 				
+				}
+				
+				/* below: not affected by PAUSE (mainly related to UI) */
+				
+				for (Castle castle : Main.this.castles) {
+					
+					// update selected castle
+					if (castle.isJustClicked() == 1) {
+						selectedCastle = castle;
+						targetedCastle = null;
+						StatusBar.getInstance().setSelectedCastle(selectedCastle);
+					} else if (castle.isJustClicked() == 2 && selectedCastle.isPlayerOwned() && !castle.isPlayerOwned()) {
+						targetedCastle = castle;
+						Main.this.pause();
+						Main.this.popupPlanAttack(primaryStage);
+						
+					}
+					castle.resetClick();
 				}
 				
 				StatusBar.getInstance().update();
@@ -131,8 +149,9 @@ public class Main extends Application {
 	private void changeGameStateText(String text) {
 		gameStateText.setText(text);
 		double textwidth = gameStateText.getLayoutBounds().getWidth();
+		double textheight = gameStateText.getLayoutBounds().getHeight();
 		gameStateText.setX((Settings.SCENE_WIDTH-textwidth)/2);
-		gameStateText.setY(Settings.SCENE_HEIGHT/2);
+		gameStateText.setY(Settings.SCENE_HEIGHT+Settings.STATUS_BAR_HEIGHT-textheight);
 	}
 	
 	private void pause() {
@@ -142,6 +161,26 @@ public class Main extends Application {
 	
 	public boolean isPaused() {
 		return this.paused;
+	}
+	
+	public void popupPlanAttack(Stage primaryStage) {
+		final Stage dialog = new Stage();
+        dialog.initModality(Modality.NONE);
+        dialog.initOwner(primaryStage);
+        VBox dialogVbox = new VBox(20);
+        dialogVbox.getChildren().add(new Text("Popup de planification d'attaque. Jeu mis en pause!"));
+        Scene dialogScene = new Scene(dialogVbox, 300, 200);
+        dialog.setScene(dialogScene);
+        dialog.show();
+        
+        dialog.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
+
+			@Override
+			public void handle(WindowEvent event) {
+				pause();
+			}
+        	
+        });
 	}
 	
 	private void loadGame() {

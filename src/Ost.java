@@ -46,6 +46,7 @@ public class Ost extends Sprite {
 		} else if (this.overlap(target)) {
 			target.receiveOst(this);
 			resolved = true;
+			removeFromLayer();
 		}
 		
 		move();

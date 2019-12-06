@@ -3,6 +3,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import javafx.event.EventHandler;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -16,6 +17,7 @@ public class Castle extends Sprite {
 	public static final SpriteDisplay player_display = new SpriteDisplay().setFill(Color.GOLD);
 	
 	private CastleGate gate;
+	private int justClicked = 0; // 0 = no, 1 = left click, 2 = right click
 	
 	private String owner = "undefined";
 	private int level = 1;
@@ -31,11 +33,26 @@ public class Castle extends Sprite {
 		
     	rectangleView.setOnMousePressed(new EventHandler<MouseEvent>() {
     	    public void handle(MouseEvent me) {
-    	        StatusBar.getInstance().setSelectedCastle(Castle.this);
+    	    	if (me.getButton() == MouseButton.PRIMARY) {
+    	    		//StatusBar.getInstance().setSelectedCastle(Castle.this);
+    	    		justClicked = 1;
+    	    	}
+    	    	else if (me.getButton() == MouseButton.SECONDARY) {
+    	    		//StatusBar.getInstance().setTargetedCastle(Castle.this);
+    	    		justClicked = 2;
+    	    	}
     	    }
     	});
 		
     	this.createGate(layer);
+	}
+	
+	public int isJustClicked() {
+		return justClicked;
+	}
+	
+	public void resetClick() {
+		justClicked = 0;
 	}
 	
 	public String getOwner() {
@@ -103,7 +120,7 @@ public class Castle extends Sprite {
 	
 	// Return true if the transaction was successful
 	public boolean buySoldier(SoldierType type) {
-		if (treasury >= type.getCost()) {
+		if (treasury >= type.getCost() && productionLine.size() < Settings.MAX_PRODUCTION_LINE) {
 			pay(type.getCost());
 			productionLine.add(type);
 			return true;
@@ -153,9 +170,9 @@ public class Castle extends Sprite {
 	
 	public void receiveOst(Ost ost) {
 		if (ost.getSource().owner == owner) {
-			//friendly encounter
+			//stash friendly soldiers
 		} else {
-			//resolve attack
+			//resolve enemy attack
 		}
 	}
 	

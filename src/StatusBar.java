@@ -4,6 +4,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -12,6 +13,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  * Singleton class used to manage the status bar displayed at the top of the screen. Call StatusBar.getInstance() to access its methods.
@@ -38,6 +41,7 @@ public class StatusBar {
 	
 	private Text UILabelProductionLine = new Text();
 	private ProgressBar UIProgressBarProductionLine = new ProgressBar();
+	private Text UISoldiersTypeProductionLine = new Text();
 	
 	private StatusBar() {
 		
@@ -51,7 +55,7 @@ public class StatusBar {
 		UIButtonCastleUpgrade.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				StatusBar.this.upgradeCaslteHandler();
+				StatusBar.this.upgradeCastleHandler();
 			}
 		});
 		UILabelsBox.setAlignment(Pos.TOP_RIGHT);
@@ -93,7 +97,8 @@ public class StatusBar {
 		UILabelProductionLine.setVisible(false);
 		UIProgressBarProductionLine.setProgress(0);
 		UIProgressBarProductionLine.setVisible(false);
-		UIProductionLine.getChildren().addAll(UILabelProductionLine, UIProgressBarProductionLine);
+		UISoldiersTypeProductionLine.setVisible(false);
+		UIProductionLine.getChildren().addAll(UILabelProductionLine, UIProgressBarProductionLine, UISoldiersTypeProductionLine);
 
 		// assemble everything
 		UITopBox.getChildren().addAll(UILabelsBox, UIValuesBox, UISoldiersGrid);
@@ -121,7 +126,7 @@ public class StatusBar {
 		selectedCastle.buySoldier(type);
 	}
 	
-	public void upgradeCaslteHandler() {
+	public void upgradeCastleHandler() {
 		selectedCastle.buyUpgrade();
 	}
 	
@@ -135,6 +140,7 @@ public class StatusBar {
 			UILabelCastleUpgrade.setVisible(selectedCastle.isPlayerOwned());
 			UILabelProductionLine.setVisible(selectedCastle.isPlayerOwned());
 			UIProgressBarProductionLine.setVisible(selectedCastle.isPlayerOwned());
+			UISoldiersTypeProductionLine.setVisible(selectedCastle.isPlayerOwned());
 			
 			int i = 0;
 			for (SoldierType type : SoldierType.values()) {
@@ -147,8 +153,11 @@ public class StatusBar {
 				Button soldierBuy = ((Button)getNodeFromGridPane(UISoldiersGrid, i, 2));
 				soldierBuy.setText("Produire ("+type.getCost()+"F)");
 				soldierBuy.setVisible(selectedCastle.isPlayerOwned());
+				
+				i++;
 			}
 			
+			// display a progress bar showing the current production for the next soldier
 			Queue<SoldierType> productionLine = selectedCastle.getProductionLine();
 			SoldierType nextSoldier = productionLine.peek();
 			if (nextSoldier != null) {
@@ -156,6 +165,14 @@ public class StatusBar {
 			} else {
 				UIProgressBarProductionLine.setProgress(0);
 			}
+			
+			// display the type of each soldier in the production line
+			String soldiersType = " ";
+			for (SoldierType st : productionLine) {
+				soldiersType += st.getName() + " ";
+			}
+			UISoldiersTypeProductionLine.setText(soldiersType);
+			
 		}
 	}
 	

@@ -6,7 +6,8 @@ import javafx.scene.paint.Color;
  */
 public enum SoldierType {
 
-	PIKEMAN("Piquier", 100, 150, 2, 1, 1, 30, 30, new SpriteDisplay().setFill(Color.CRIMSON));
+	PIKEMAN("Piquier", 100, 150, 2, 1, 1, 30, 30, new SpriteDisplay().setFill(Color.CRIMSON)),
+	KNIGHT("Chevalier", 500, 600, 6, 3, 5, 30, 30, new SpriteDisplay().setFill(Color.DARKORANGE).setStroke(Color.DARKRED, 2));
 	
 	private String name;
 	private int cost;
