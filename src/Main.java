@@ -1,13 +1,18 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -167,20 +172,64 @@ public class Main extends Application {
 		final Stage dialog = new Stage();
         dialog.initModality(Modality.NONE);
         dialog.initOwner(primaryStage);
-        VBox dialogVbox = new VBox(20);
-        dialogVbox.getChildren().add(new Text("Popup de planification d'attaque. Jeu mis en pause!"));
+        VBox dialogVbox = new VBox();
+        
+        int[][] ostData; // TODO: use that
+
+    	GridPane ostGrid = new GridPane();
+    	ostGrid.setHgap(10);
+    	int i = 0;
+    	for (SoldierType type : SoldierType.values()) {
+    		Label soldierLabel = new Label(type.getName());
+    		ostGrid.add(soldierLabel, 0, i);
+    		Label soldierAmount = new Label("0");
+    		ostGrid.add(soldierAmount, 2, i);
+    		Label soldierAmountSeparator = new Label("/");
+    		ostGrid.add(soldierAmountSeparator, 3, i);
+    		Label soldierTotal = new Label(Integer.toString(selectedCastle.getSoldierAmount(type)));
+    		ostGrid.add(soldierTotal, 4, i);
+    		Button soldierDecrement = new Button("-");
+    		ostGrid.add(soldierDecrement, 1, i);
+    		soldierDecrement.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent event) {
+					int c = new Integer(soldierAmount.getText());
+					int t = new Integer(soldierTotal.getText());
+					if (c > 0) soldierAmount.setText(Integer.toString(c - 1)); // temporary POC
+				}
+			});
+    		Button soldierIncrement = new Button("+");
+    		ostGrid.add(soldierIncrement, 5, i);
+    		soldierIncrement.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent event) {
+					int c = new Integer(soldierAmount.getText());
+					int t = new Integer(soldierTotal.getText());
+					if (c < t) soldierAmount.setText(Integer.toString(c + 1)); // temporary POC
+				}
+			});
+    		i++;
+    	}
+        
+        dialogVbox.getChildren().addAll(new Text("Popup de planification d'attaque.\nJeu mis en pause!"), ostGrid, new Button("Attaquer !"));
         Scene dialogScene = new Scene(dialogVbox, 300, 200);
         dialog.setScene(dialogScene);
-        dialog.show();
         
-        dialog.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
+        /*dialog.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
 
 			@Override
 			public void handle(WindowEvent event) {
 				pause();
 			}
         	
+        });*/
+        
+        dialog.setOnCloseRequest((WindowEvent e) -> {
+        	pause();
         });
+        
+        dialog.show();
+        
 	}
 	
 	private void loadGame() {
