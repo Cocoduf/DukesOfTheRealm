@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -65,15 +66,19 @@ public class Main extends Application {
 					Main.this.castles.forEach(castle -> castle.update());
 					////
 					for (Castle castle : Main.this.castles) {
-						// Pour le moment, les chateaux génèrent automatiquement un Ost contenant un Pikeman quand ils ont assez de florins
 						if (!castle.isPlayerOwned()) {
 							if (castle.buySoldier(SoldierType.PIKEMAN)) {
 							
-								/*Castle target = Main.this.castles.get(0);
-								Ost ost = new Ost(playfieldLayer, castle, target);
-								ost.addSoldier(SoldierType.PIKEMAN);
-								
-								Main.this.osts.add(ost);*/
+								// random basic attack
+								if (Math.random() > 0.8) {
+									Castle target = castles.get(new Random().nextInt(castles.size()));
+									if (target != castle) {
+										Ost ost = new Ost(playfieldLayer, castle, target);
+										ost.addSoldier(SoldierType.PIKEMAN);
+										castle.removeSoldier(SoldierType.PIKEMAN);
+										Main.this.osts.add(ost);
+									}
+								}
 								
 							}
 						}
@@ -95,7 +100,7 @@ public class Main extends Application {
 						StatusBar.getInstance().setSelectedCastle(selectedCastle);
 					} else if (castle.isJustClicked() == 2 && selectedCastle.isPlayerOwned() && !castle.isPlayerOwned()) {
 						targetedCastle = castle;
-						Main.this.pause();
+						Main.this.togglePause();
 						Main.this.popupPlanAttack(primaryStage);
 						
 					}
@@ -159,7 +164,7 @@ public class Main extends Application {
 		gameStateText.setY(Settings.SCENE_HEIGHT+Settings.STATUS_BAR_HEIGHT-textheight);
 	}
 	
-	private void pause() {
+	private void togglePause() {
 		this.paused = !this.paused;
 		changeGameStateText(paused ? "Jeu en pause" : "");
 	}
@@ -174,28 +179,34 @@ public class Main extends Application {
         dialog.initOwner(primaryStage);
         VBox dialogVbox = new VBox();
         
-        int[][] ostData; // TODO: use that
+        Label soldierTotal = new Label("0");
+        
+        HashMap<SoldierType, Integer> ostData = new HashMap<>();
 
     	GridPane ostGrid = new GridPane();
     	ostGrid.setHgap(10);
     	int i = 0;
     	for (SoldierType type : SoldierType.values()) {
+    		ostData.put(type, 0);
     		Label soldierLabel = new Label(type.getName());
     		ostGrid.add(soldierLabel, 0, i);
     		Label soldierAmount = new Label("0");
     		ostGrid.add(soldierAmount, 2, i);
     		Label soldierAmountSeparator = new Label("/");
     		ostGrid.add(soldierAmountSeparator, 3, i);
-    		Label soldierTotal = new Label(Integer.toString(selectedCastle.getSoldierAmount(type)));
-    		ostGrid.add(soldierTotal, 4, i);
+    		Label soldierMax = new Label(Integer.toString(selectedCastle.getSoldierAmount(type)));
+    		ostGrid.add(soldierMax, 4, i);
     		Button soldierDecrement = new Button("-");
     		ostGrid.add(soldierDecrement, 1, i);
     		soldierDecrement.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent event) {
-					int c = new Integer(soldierAmount.getText());
-					int t = new Integer(soldierTotal.getText());
-					if (c > 0) soldierAmount.setText(Integer.toString(c - 1)); // temporary POC
+					int amount = ostData.get(type);
+					if (amount > 0) {
+			    		ostData.put(type, amount - 1);
+						soldierAmount.setText(Integer.toString(amount - 1));
+						soldierTotal.setText(Integer.toString(Integer.parseInt(soldierTotal.getText()) - 1));
+					}
 				}
 			});
     		Button soldierIncrement = new Button("+");
@@ -203,29 +214,46 @@ public class Main extends Application {
     		soldierIncrement.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent event) {
-					int c = new Integer(soldierAmount.getText());
-					int t = new Integer(soldierTotal.getText());
-					if (c < t) soldierAmount.setText(Integer.toString(c + 1)); // temporary POC
+					int amount = ostData.get(type);
+					int max = new Integer(soldierMax.getText());
+					if (amount < max && Integer.parseInt(soldierTotal.getText()) < 3) {
+			    		ostData.put(type, amount + 1);
+						soldierAmount.setText(Integer.toString(amount + 1));
+						soldierTotal.setText(Integer.toString(Integer.parseInt(soldierTotal.getText()) + 1));
+					}
 				}
 			});
     		i++;
     	}
+    	
+    	Button confirmAttack = new Button("Attaquer !");
+    	confirmAttack.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				Ost ost = new Ost(playfieldLayer, selectedCastle, targetedCastle);
+				
+				for (SoldierType type : ostData.keySet()) {
+					for (int i = 0; i < ostData.get(type); i++) {
+						ost.addSoldier(type);
+						selectedCastle.removeSoldier(type);
+					}
+				}
+				
+				Main.this.osts.add(ost);
+				dialog.close();
+				togglePause();
+			}
+    		
+    	});
         
-        dialogVbox.getChildren().addAll(new Text("Popup de planification d'attaque.\nJeu mis en pause!"), ostGrid, new Button("Attaquer !"));
+        dialogVbox.getChildren().addAll(new Text("Planification d'attaque."), ostGrid,
+        		new HBox(new Label("Soldats selectionnés : "), soldierTotal, new Label("/3")), confirmAttack);
         Scene dialogScene = new Scene(dialogVbox, 300, 200);
         dialog.setScene(dialogScene);
         
-        /*dialog.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
-
-			@Override
-			public void handle(WindowEvent event) {
-				pause();
-			}
-        	
-        });*/
-        
         dialog.setOnCloseRequest((WindowEvent e) -> {
-        	pause();
+        	togglePause();
         });
         
         dialog.show();
@@ -238,8 +266,8 @@ public class Main extends Application {
 		changeGameStateText("");
 		
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-			if (event.getCode() == KeyCode.P) {
-				pause();
+			if (event.getCode() == KeyCode.SPACE) {
+				togglePause();
 			}
 		});
 		

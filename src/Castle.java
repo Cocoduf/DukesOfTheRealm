@@ -1,6 +1,7 @@
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
 
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
@@ -61,6 +62,11 @@ public class Castle extends Sprite {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+		if (owner==Settings.PLAYER_NAME) {
+			changeDisplay(player_display);
+		} else {
+			changeDisplay(neutral_display);
+		}
 	}
 	
 	public boolean isPlayerOwned() {
@@ -129,6 +135,26 @@ public class Castle extends Sprite {
 		}
 	}
 	
+	public void addSoldier(SoldierType type, int amount) {
+		army.put(type, getSoldierAmount(type) + amount);
+	}
+	
+	public void removeSoldier(SoldierType type) {
+		if (getSoldierAmount(type) > 0) {
+			army.put(type, getSoldierAmount(type) - 1);
+		}
+	}
+	
+	private boolean hasNoArmy() {
+		boolean no = true;
+		for (SoldierType type : army.keySet()) {
+			if (getSoldierAmount(type) > 0) {
+				no = false;
+			}
+		}
+		return no;
+	}
+	
 	private void createGate(Pane layer) {
 		
 		double gateX, gateY, gateWidth, gateHeight;
@@ -168,12 +194,40 @@ public class Castle extends Sprite {
 		return gate;
 	}
 	
+	// the castle receives a group of soldiers
 	public void receiveOst(Ost ost) {
+		HashMap<SoldierType, Integer> ostSoldiers = ost.getSoldiers();
 		if (ost.getSource().owner == owner) {
-			//stash friendly soldiers
+			for (SoldierType type : ostSoldiers.keySet()) {
+				addSoldier(type, ostSoldiers.get(type));
+			}
 		} else {
-			//resolve enemy attack
+			for (SoldierType type : ostSoldiers.keySet()) {
+				for (int i = 0; i < ostSoldiers.get(type); i++) {
+					int damage = type.getDamage();
+					while (damage > 0 && !hasNoArmy()) {
+						damage = this.applyDamageToRandomSoldier(damage);
+					}
+				}
+			}
+			if (hasNoArmy()) {
+				setOwner(ost.getSource().owner);
+			}
 		}
+	}
+	
+	private int applyDamageToRandomSoldier(int damage) {
+		for (SoldierType type : army.keySet()) {
+			if (getSoldierAmount(type) > 0) {
+				int health = type.getHealth();
+				if (damage >= health) {
+					removeSoldier(type);
+				}
+				damage -= health;
+				break;
+			}
+		}
+		return damage;
 	}
 	
 	public void update() {
@@ -181,10 +235,10 @@ public class Castle extends Sprite {
 		
 		// advance the production of the next soldier and create it if it's ready
 		if (!productionLine.isEmpty()) {
-			soldierProduction++;
-			if (soldierProduction == productionLine.peek().getProductionTime()) {
+			soldierProduction += level;
+			if (soldierProduction >= productionLine.peek().getProductionTime()) {
 				SoldierType type = productionLine.poll();
-				army.put(type, getSoldierAmount(type) + 1); // increment by 1 or put 1 if null
+				addSoldier(type, 1);
 				soldierProduction = 0;
 			}
 		}

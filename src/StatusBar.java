@@ -63,7 +63,6 @@ public class StatusBar {
 		UIValuesBox.getChildren().addAll(UIValueCastleOwner, UIValueCastleLevel, UIValueCastleTreasury, UIButtonCastleUpgrade);
 		
 		// soldiers management
-		//TODO: ajouter un titre au tableau des soldats
 		int i = 0;
 		for (SoldierType type : SoldierType.values()) {
 			Label soldierLabel = new Label();
@@ -92,7 +91,6 @@ public class StatusBar {
 		UISoldiersGrid.getStyleClass().add("soldiersGrid");
 		UISoldiersGrid.setHgap(10);
 		
-		//TODO: have the production line display the queued soldiers
 		UILabelProductionLine.setText("Production : ");
 		UILabelProductionLine.setVisible(false);
 		UIProgressBarProductionLine.setProgress(0);

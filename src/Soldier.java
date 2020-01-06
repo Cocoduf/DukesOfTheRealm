@@ -5,16 +5,11 @@ import javafx.scene.layout.Pane;
  *
  */
 public class Soldier extends Sprite {
-	
-	private int health;
-	private int damage;
 
 	public Soldier(Pane layer, double x, double y, SoldierType soldierType) {
 		super(layer, x, y, soldierType.getWidth(), soldierType.getHeight(), soldierType.getDisplay());
 		
 		setSpeed(soldierType.getSpeed());
-		this.health = soldierType.getHealth();
-		this.damage = soldierType.getDamage();
 	}
 
 }
