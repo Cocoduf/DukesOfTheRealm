@@ -128,6 +128,9 @@ public class StatusBar {
 		selectedCastle.buyUpgrade();
 	}
 	
+	/**
+	 * Update the visibility and values of the labels, etc.
+	 */
 	public void update() {
 		if (selectedCastle != null) {
 			UIValueCastleOwner.setText(selectedCastle.getOwner());
@@ -174,6 +177,13 @@ public class StatusBar {
 		}
 	}
 	
+	/**
+	 * Access a node in a gridPane at the given index.
+	 * @param gridPane
+	 * @param col
+	 * @param row
+	 * @return Node or null if none
+	 */
 	private Node getNodeFromGridPane(GridPane gridPane, int col, int row) {
 	    for (Node node : gridPane.getChildren()) {
 	        if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {

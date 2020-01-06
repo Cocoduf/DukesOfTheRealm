@@ -117,6 +117,14 @@ public class Main extends Application {
 		
 	}
 	
+	/**
+	 * Return a random location on the screen that takes into account an optional screen offset as well as the status bar.
+	 * @param offsetLeft
+	 * @param offsetRight
+	 * @param offsetTop
+	 * @param offsetBottom
+	 * @return
+	 */
 	public static double[] randomLocationOnScreen(double offsetLeft, double offsetRight, double offsetTop, double offsetBottom) {
 		double[] location = new double[2];
 		location[0] = Math.floor(Math.random() * (Settings.SCENE_WIDTH+1 - offsetRight)) + offsetLeft; // x
@@ -124,6 +132,14 @@ public class Main extends Application {
 		return location;
 	}
 	
+	/**
+	 * Return the x and y velocity needed to go to the destination on a straight line. Parameters are starting location coordinates and ending location coordinates.
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @return double[] an array with [0]=x and [1]=y
+	 */
 	public static double[] getCosineDirection(double x1, double y1, double x2, double y2) {
     	double q = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
 		double dx = (x2-x1) / q;
@@ -131,10 +147,16 @@ public class Main extends Application {
 		return new double[] {dx, dy};
     }
 	
+	/**
+	 * Add StatusBar to game
+	 */
 	private void createStatusBar() {
 		root.getChildren().add(StatusBar.getInstance().getUIStatusBar());
 	}
 	
+	/**
+	 * Generate the initial Castles at random locations
+	 */
 	private void createCastles() {
 		for (int i = 0; i < Settings.PLAYER_COUNT; i++) {
 			Castle castle = new Castle(playfieldLayer, 0, 0, i==0?Settings.PLAYER_NAME:"ENEMY "+i);
@@ -156,6 +178,10 @@ public class Main extends Application {
 		}
 	}
 	
+	/**
+	 * Change the text displayed at the bottom
+	 * @param text
+	 */
 	private void changeGameStateText(String text) {
 		gameStateText.setText(text);
 		double textwidth = gameStateText.getLayoutBounds().getWidth();
@@ -164,15 +190,26 @@ public class Main extends Application {
 		gameStateText.setY(Settings.SCENE_HEIGHT+Settings.STATUS_BAR_HEIGHT-textheight);
 	}
 	
+	/**
+	 * Pause the game if unpaused; unpause the game if paused
+	 */
 	private void togglePause() {
 		this.paused = !this.paused;
 		changeGameStateText(paused ? "Jeu en pause" : "");
 	}
 	
+	/**
+	 * Return true if the game is paused
+	 * @return
+	 */
 	public boolean isPaused() {
 		return this.paused;
 	}
 	
+	/**
+	 * Display a popup window for the player to select which soldiers to send for attack
+	 * @param primaryStage
+	 */
 	public void popupPlanAttack(Stage primaryStage) {
 		final Stage dialog = new Stage();
         dialog.initModality(Modality.NONE);
@@ -260,6 +297,9 @@ public class Main extends Application {
         
 	}
 	
+	/**
+	 * init everything
+	 */
 	private void loadGame() {
 		gameStateText.setFont(Font.font("Arial", 60));
 		root.getChildren().add(gameStateText);

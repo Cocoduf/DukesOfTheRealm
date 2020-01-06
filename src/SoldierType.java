@@ -6,6 +6,7 @@ import javafx.scene.paint.Color;
  */
 public enum SoldierType {
 
+	// To add a new type of Soldier, simply copy one of the following line and change the values
 	PIKEMAN("Piquier", 100, 150, 2, 1, 1, 10, 10, new SpriteDisplay().setFill(Color.CRIMSON)),
 	KNIGHT("Chevalier", 500, 600, 6, 3, 5, 10, 10, new SpriteDisplay().setFill(Color.DARKORANGE).setStroke(Color.DARKRED, 1)),
 	ONAGER("Onagre", 1000, 3000, 1, 5, 10, 20, 20, new SpriteDisplay().setFill(Color.CORNFLOWERBLUE).setStroke(Color.DARKBLUE, 1));
@@ -39,7 +40,7 @@ public enum SoldierType {
 	public int getCost() {
 		return cost;
 	}
-	
+
 	public int getProductionTime() {
 		return productionTime;
 	}

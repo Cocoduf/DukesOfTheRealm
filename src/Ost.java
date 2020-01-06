@@ -60,14 +60,20 @@ public class Ost extends Sprite {
 		return source;
 	}
 	
+	/**
+	 * Return true if the ost has reached its destination and finished the attack
+	 * @return
+	 */
 	public boolean hasResolved() {
 		return resolved;
 	}
 	
+	/**
+	 * Update the ost, moving it.
+	 */
 	public void update() {
 		
 		if (!wentThroughSourceGate && !this.overlap(source)) {
-			//updateDirection(target.getCastleGate().getCenterX(), target.getCastleGate().getCenterY());
 			updateDirection(target.getCenterX(), target.getCenterY());
 			wentThroughSourceGate = true;
 			toFront();

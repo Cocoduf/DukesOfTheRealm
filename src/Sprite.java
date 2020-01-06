@@ -42,6 +42,9 @@ public abstract class Sprite {
     	this.addToLayer();
 	}
 
+	/**
+	 * Add to the main Pane
+	 */
     public void addToLayer() {
         this.layer.getChildren().add(this.rectangleView);
     }
@@ -65,7 +68,9 @@ public abstract class Sprite {
     	this.currentDisplay = display;
     }
     
-    // Remove any priority the Sprite would have to be displayed on top of an other Sprite
+    /**
+     * Remove any priority the Sprite would have to be displayed on top of an other Sprite
+     */
     public void toBack() {
     	for (Sprite child : this.children) {
         	child.toBack();
@@ -118,6 +123,11 @@ public abstract class Sprite {
     	this.speed = speed;
     }
     
+    /**
+     * Change the direction of the sprite to move towards the given destination.
+     * @param destX
+     * @param destY
+     */
 	public void updateDirection(double destX, double destY) {
 		double[] direction = Main.getCosineDirection(this.getX(), this.getY(), destX, destY);
 		this.setDx(direction[0]);

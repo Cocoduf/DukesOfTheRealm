@@ -35,11 +35,9 @@ public class Castle extends Sprite {
     	rectangleView.setOnMousePressed(new EventHandler<MouseEvent>() {
     	    public void handle(MouseEvent me) {
     	    	if (me.getButton() == MouseButton.PRIMARY) {
-    	    		//StatusBar.getInstance().setSelectedCastle(Castle.this);
     	    		justClicked = 1;
     	    	}
     	    	else if (me.getButton() == MouseButton.SECONDARY) {
-    	    		//StatusBar.getInstance().setTargetedCastle(Castle.this);
     	    		justClicked = 2;
     	    	}
     	    }
@@ -194,14 +192,17 @@ public class Castle extends Sprite {
 		return gate;
 	}
 	
-	// the castle receives a group of soldiers
+	/**
+	 * The castle receives a group of soldiers
+	 * @param ost
+	 */
 	public void receiveOst(Ost ost) {
 		HashMap<SoldierType, Integer> ostSoldiers = ost.getSoldiers();
-		if (ost.getSource().owner == owner) {
+		if (ost.getSource().owner == owner) { // friendly ost
 			for (SoldierType type : ostSoldiers.keySet()) {
 				addSoldier(type, ostSoldiers.get(type));
 			}
-		} else {
+		} else { // enemy ost
 			for (SoldierType type : ostSoldiers.keySet()) {
 				for (int i = 0; i < ostSoldiers.get(type); i++) {
 					int damage = type.getDamage();
@@ -210,12 +211,17 @@ public class Castle extends Sprite {
 					}
 				}
 			}
-			if (hasNoArmy()) {
+			if (hasNoArmy()) { // no army left ? the attacker takes control of the castle
 				setOwner(ost.getSource().owner);
 			}
 		}
 	}
 	
+	/**
+	 * Apply damage to a "random" soldier in the castle, killing it if it exceeds its health, and returning the leftover damage.
+	 * @param damage
+	 * @return int
+	 */
 	private int applyDamageToRandomSoldier(int damage) {
 		for (SoldierType type : army.keySet()) {
 			if (getSoldierAmount(type) > 0) {
@@ -230,6 +236,9 @@ public class Castle extends Sprite {
 		return damage;
 	}
 	
+	/**
+	 * Update the castle, generating income and advancing the production
+	 */
 	public void update() {
 		this.treasury += getIncome();
 		
